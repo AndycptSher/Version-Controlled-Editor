@@ -54,10 +54,6 @@ public class JavaEditor extends JFrame{
                 switch(chooser.showOpenDialog(null)){
                     case JFileChooser.APPROVE_OPTION:
                         File selectedFile = chooser.getSelectedFile();
-                        System.out.println(selectedFile.getName());
-                        // selectedFile;
-                        // FileReader
-                        // BufferedReader;
                         Scanner scanner;
                         try{
                             scanner = new Scanner(selectedFile);
@@ -70,8 +66,6 @@ public class JavaEditor extends JFrame{
                             System.out.println(scanner.nextLine());
                         }
                         break;
-                    // case JFileChooser:
-                    //     break;
                 }
                 
                 

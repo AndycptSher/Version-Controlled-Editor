@@ -171,13 +171,6 @@ class TabComponent extends JPanel{
                 }
             });
         }
-
-        // @Override
-        // public void actionPerformed(ActionEvent e){
-        //     // button is pressed, delete/close tab
-        //     int index = getTabIndex();
-        //     parent.remove(index);
-        // }
     }
     public TabComponent(JTabbedPane parent){
         this.parent = parent;

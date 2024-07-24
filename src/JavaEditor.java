@@ -62,9 +62,12 @@ public class JavaEditor extends JFrame{
                             System.err.print("File: "+selectedFile.getName()+" Not Found");
                             break;
                         }
+
+                        String contents = "";
                         while (scanner.hasNextLine()){
-                            System.out.println(scanner.nextLine());
+                            contents+=scanner.nextLine()+"\n";
                         }
+                        addTab(new EditorSpace(selectedFile.getName(), new JTextArea(contents)));
                         break;
                 }
                 

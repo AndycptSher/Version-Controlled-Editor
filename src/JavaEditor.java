@@ -23,9 +23,6 @@ public class JavaEditor extends JFrame{
     
     public JavaEditor(){
         //Create a panel and add components to it.
-        // JPanel contentPane = new JPanel(new BorderLayout());
-        // contentPane.add(new Button(), BorderLayout.CENTER);
-        // contentPane.add(new Button(), BorderLayout.PAGE_END);
         JTabbedPane contentPane = new JTabbedPane();
         this.setContentPane(contentPane);
         

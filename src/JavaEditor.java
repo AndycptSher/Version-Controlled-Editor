@@ -22,7 +22,7 @@ import java.util.Scanner;
 public class JavaEditor extends JFrame{
     
     public JavaEditor(){
-        //Create a panel and add components to it.
+        // Create a panel and add components to it.
         JTabbedPane contentPane = new JTabbedPane();
         this.setContentPane(contentPane);
         

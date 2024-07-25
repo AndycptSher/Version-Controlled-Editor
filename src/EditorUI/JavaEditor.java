@@ -1,4 +1,4 @@
-package JavaEditor.src;
+package EditorUI;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -98,13 +98,14 @@ public class JavaEditor extends JFrame{
         JEditorPane panel1;
         panel1 = new JEditorPane();
         JTextPane panel2 = new JTextPane();
-        JTextComponent[] panels = new JTextComponent[]{panel0, panel1, panel2};
+        JTextComponent[] panels = new JTextComponent[]{};
+            // panel0, panel1, panel2};
         for (int i=0; i<panels.length;i++){
             JTextComponent p = panels[i];
             display.addTab(new EditorSpace(String.valueOf(i), p));
         }
 
-        display.addTab(new EditorSpace("heyyy", new JEditorPane()));
+        // display.addTab(new EditorSpace("heyyy", new JEditorPane()));
         System.out.println("Hello world!");
     }
 }

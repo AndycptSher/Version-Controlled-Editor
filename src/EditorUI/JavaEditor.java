@@ -2,7 +2,6 @@ package EditorUI;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.text.JTextComponent;
@@ -29,6 +28,8 @@ public class JavaEditor extends JFrame{
         initMenuBar();
         this.setSize(new Dimension(300, 200));
         this.setVisible(true);
+        // stops program after app is closed
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     private void initMenuBar(){
@@ -51,20 +52,20 @@ public class JavaEditor extends JFrame{
                 switch(chooser.showOpenDialog(null)){
                     case JFileChooser.APPROVE_OPTION:
                         File selectedFile = chooser.getSelectedFile();
-                        Scanner scanner;
+                        String fileName = selectedFile.getName();
                         try{
-                            scanner = new Scanner(selectedFile);
+                            fileName = fileName.substring(0, fileName.length()-4);
                         }
-                        catch(FileNotFoundException err){
-                            System.err.print("File: "+selectedFile.getName()+" Not Found");
-                            break;
+                        catch(IndexOutOfBoundsException err){
+                            System.out.println(fileName + " unable to strip file extention");
                         }
-
-                        String contents = "";
-                        while (scanner.hasNextLine()){
-                            contents+=scanner.nextLine()+"\n";
+                        
+                        try{
+                            addTab(fileName, new PlainTextEditor(fileName, selectedFile));
                         }
-                        addTab(new EditorSpace(selectedFile.getName(), new JTextArea(contents)));
+                        catch(FileNotFoundException notFound){
+                            System.out.println(selectedFile.getName() + " not found");
+                        }
                         break;
                 }
                 
@@ -85,9 +86,9 @@ public class JavaEditor extends JFrame{
         menu.add(close);
     }
 
-    public void addTab(EditorSpace component){
+    public void addTab(String name, JPanel component){
         JTabbedPane contentPane = ((JTabbedPane)getContentPane());
-        contentPane.addTab(component.name, component);
+        contentPane.addTab(name, component);
         contentPane.setTabComponentAt(contentPane.getTabCount()-1, new TabComponent(contentPane));
     }
     
@@ -99,28 +100,13 @@ public class JavaEditor extends JFrame{
         panel1 = new JEditorPane();
         JTextPane panel2 = new JTextPane();
         JTextComponent[] panels = new JTextComponent[]{};
-            // panel0, panel1, panel2};
-        for (int i=0; i<panels.length;i++){
-            JTextComponent p = panels[i];
-            display.addTab(new EditorSpace(String.valueOf(i), p));
-        }
+        // panel0, panel1, panel2};
+        // for (int i=0; i<panels.length;i++){
+        //     JTextComponent p = panels[i];
+        //     display.addTab(String.valueOf(i), new EditorSpace(p));
+        // }
 
-        // display.addTab(new EditorSpace("heyyy", new JEditorPane()));
         System.out.println("Hello world!");
-    }
-}
-
-class EditorSpace extends JPanel{
-    /*
-     * favor composition over inheritance
-     */
-    String name;
-    JTextComponent component;
-    EditorSpace(String name, JTextComponent component){
-        setLayout(new BorderLayout());
-        this.name = name;
-        this.component = component;
-        add(component);
     }
 }
 

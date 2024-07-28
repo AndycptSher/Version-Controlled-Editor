@@ -64,7 +64,7 @@ public class JavaEditor extends JFrame{
                     fileName = fileName.substring(0, fileName.length()-4);
                 }
                 catch(IndexOutOfBoundsException err){
-                    System.out.println(fileName + " unable to strip file extention");
+                    JOptionPane.showMessageDialog(JavaEditor.this, "unable to strip file extention from " + fileName);
                     return;
                 }
 
@@ -72,8 +72,10 @@ public class JavaEditor extends JFrame{
                     addTab(fileName, new PlainTextEditor(fileName, selectedFile));
                 }
                 catch(FileNotFoundException notFound){
-                    // TODO: convert not found message into UI
-                    System.out.println(selectedFile.getName() + " not found");
+                    JOptionPane.showMessageDialog(JavaEditor.this, selectedFile.getName() + " not found");
+                }
+                catch(IllegalArgumentException notTXTErr){
+                    JOptionPane.showMessageDialog(JavaEditor.this, notTXTErr.getMessage());
                 }
             }
         });

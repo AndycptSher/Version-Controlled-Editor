@@ -16,7 +16,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
+
+/*
+ * TODO: add new tab button feature (close app when all tabs are closed)
+ * TODO: add save button
+ */
+
 
 public class JavaEditor extends JFrame{
     
@@ -49,27 +54,27 @@ public class JavaEditor extends JFrame{
                 chooser.setAcceptAllFileFilterUsed(false);
                 chooser.setFileFilter(new FileNameExtensionFilter("TEXT FILES", "txt", "text"));
                 
-                switch(chooser.showOpenDialog(null)){
-                    case JFileChooser.APPROVE_OPTION:
-                        File selectedFile = chooser.getSelectedFile();
-                        String fileName = selectedFile.getName();
-                        try{
-                            fileName = fileName.substring(0, fileName.length()-4);
-                        }
-                        catch(IndexOutOfBoundsException err){
-                            System.out.println(fileName + " unable to strip file extention");
-                        }
-                        
-                        try{
-                            addTab(fileName, new PlainTextEditor(fileName, selectedFile));
-                        }
-                        catch(FileNotFoundException notFound){
-                            System.out.println(selectedFile.getName() + " not found");
-                        }
-                        break;
+                if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION){
+                    return;
                 }
+                File selectedFile = chooser.getSelectedFile();
                 
-                
+                String fileName = selectedFile.getName();
+                try{
+                    fileName = fileName.substring(0, fileName.length()-4);
+                }
+                catch(IndexOutOfBoundsException err){
+                    System.out.println(fileName + " unable to strip file extention");
+                    return;
+                }
+
+                try{
+                    addTab(fileName, new PlainTextEditor(fileName, selectedFile));
+                }
+                catch(FileNotFoundException notFound){
+                    // TODO: convert not found message into UI
+                    System.out.println(selectedFile.getName() + " not found");
+                }
             }
         });
         menu.add(open);
@@ -86,12 +91,13 @@ public class JavaEditor extends JFrame{
         menu.add(close);
     }
 
-    public void addTab(String name, JPanel component){
+    public void addTab(String title, JPanel component){
         JTabbedPane contentPane = ((JTabbedPane)getContentPane());
-        contentPane.addTab(name, component);
+        contentPane.addTab(title, component);
         contentPane.setTabComponentAt(contentPane.getTabCount()-1, new TabComponent(contentPane));
     }
     
+    @SuppressWarnings("unused")
     public static void main(String[] args){
         JavaEditor display = new JavaEditor();
         

@@ -9,22 +9,34 @@ import javax.swing.*;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+/*
+ * TODO: add features
+ * - softwrap option
+ * - font selection
+ * - font size
+ * - status bar at bottom (word/character count, font selection, ...)
+ * - Ctrl + F -> find (and replace)
+ * - Ctrl + T -> new tab + set focus to new tab
+ * - Ctrl + G -> goto line
+ * - Ctrl + Z history of edits
+ */
+
 public class PlainTextEditor extends JPanel{
     private JScrollPane page;
-    private String name;
-    public PlainTextEditor(String name){
-        this.name = name;
+    private String title;
+    public PlainTextEditor(String title){
+        this.title = title;
         initPage("");
     }
 
-    public PlainTextEditor(String name, String content){
-        this.name = name;
+    public PlainTextEditor(String title, String content){
+        this.title = title;
         initPage(content);
     }
 
-    public PlainTextEditor(String name, File file) throws FileNotFoundException, IllegalArgumentException{
+    public PlainTextEditor(String title, File file) throws FileNotFoundException, IllegalArgumentException{
         if (!file.getName().endsWith(".txt")) throw new IllegalArgumentException("File must be a .txt file");
-        this.name = name;
+        this.title = title;
         Scanner scanner;
         try{
             scanner = new Scanner(file);
@@ -51,7 +63,7 @@ public class PlainTextEditor extends JPanel{
         this.add(this.page);
     }
 
-    public String getName(){
-        return this.name;
+    public String getTitle(){
+        return this.title;
     }
 }

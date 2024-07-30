@@ -1,5 +1,7 @@
 package EditorUI;
 
+import VersionControl.VersionControl;
+
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;

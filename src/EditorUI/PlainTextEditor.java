@@ -1,17 +1,19 @@
 package EditorUI;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import javax.swing.*;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
+
+import org.w3c.dom.events.Event;
 
 /*
  * TODO: add features
- * - softwrap option
  * - font selection
  * - font size
  * - status bar at bottom (word/character count, font selection, ...)
@@ -58,8 +60,37 @@ public class PlainTextEditor extends JPanel{
          */
         // fill to fit panel
         this.setLayout(new BorderLayout());
+
+        // toolbar for options users can select
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+
+        JCheckBox wrapped = new JCheckBox("Softwrap");
+        wrapped.setHorizontalTextPosition(SwingConstants.LEFT);
+        bar.add(wrapped);
+        
+        this.add(bar, BorderLayout.NORTH);
+        
         JTextArea textArea = new JTextArea(intialText);
+        textArea.setSelectedTextColor(null); // sets the colour of the text
+        // textArea.setFont
+        // button for wordwrapping
+        wrapped.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e){
+                switch (e.getStateChange()){
+                    case ItemEvent.SELECTED:
+                        textArea.setLineWrap(true);
+                        break;
+                    case ItemEvent.DESELECTED:
+                        textArea.setLineWrap(false);
+                        break;
+                }
+            }
+        });
+        // scrolling
         this.page = new JScrollPane(textArea);
+
         this.add(this.page);
     }
 

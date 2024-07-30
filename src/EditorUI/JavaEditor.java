@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 /*
  * TODO: add new tab button feature (close app when all tabs are closed)
  * TODO: add save button
+ * TODO: theme selection for app
  */
 
 

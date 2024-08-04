@@ -19,6 +19,10 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+// VersionControl exception imports
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 /*
  * TODO: add new tab button feature (close app when all tabs are closed)
  * TODO: add save button

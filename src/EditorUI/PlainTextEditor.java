@@ -2,15 +2,19 @@ package EditorUI;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+
+import java.awt.print.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import javax.swing.*;
-
-import org.w3c.dom.events.Event;
 
 /*
  * TODO: add features
@@ -91,6 +95,22 @@ public class PlainTextEditor extends JPanel{
         // scrolling
         this.page = new JScrollPane(textArea);
 
+        // print page
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), "print");
+        this.getActionMap().put("print", new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("ehy");
+                try{
+                    textArea.print();
+                }
+                catch (PrinterException _e) {
+                    JOptionPane.showMessageDialog(PlainTextEditor.this, e.toString());
+                }
+                return;
+            }  
+        });
         this.add(this.page);
     }
 

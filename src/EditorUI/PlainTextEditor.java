@@ -16,6 +16,7 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+
 /*
  * TODO: add features
  * - font selection
@@ -30,6 +31,7 @@ import javax.swing.*;
 public class PlainTextEditor extends JPanel{
     private JScrollPane page;
     private String title;
+    
     public PlainTextEditor(String title){
         this.title = title;
         initPage("");
@@ -43,19 +45,19 @@ public class PlainTextEditor extends JPanel{
     public PlainTextEditor(String title, File file) throws FileNotFoundException, IllegalArgumentException{
         if (!file.getName().endsWith(".txt")) throw new IllegalArgumentException("File must be a .txt file");
         this.title = title;
-        Scanner scanner;
-        try{
-            scanner = new Scanner(file);
+        
+        // copy over file content to editor
+        String contents = "";
+        try(Scanner scanner = new Scanner(file);){
+            while (scanner.hasNextLine()){
+                contents+=scanner.nextLine()+"\n";
+            }
         }
         catch (FileNotFoundException err){
             throw err;
         }
-        String contents = "";
-        while (scanner.hasNextLine()){
-            contents+=scanner.nextLine()+"\n";
-        }
+        
         initPage(contents);
-        scanner.close();
     }
 
     private void initPage(String intialText){
@@ -79,6 +81,8 @@ public class PlainTextEditor extends JPanel{
         textArea.setSelectedTextColor(null); // sets the colour of the text
         // textArea.setFont
         // button for wordwrapping
+
+        // linewrap toggle logic
         wrapped.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e){
@@ -111,6 +115,7 @@ public class PlainTextEditor extends JPanel{
                 return;
             }  
         });
+
         this.add(this.page);
     }
 

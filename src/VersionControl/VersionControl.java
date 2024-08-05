@@ -35,6 +35,10 @@ public class VersionControl {
     }
 
     public void save() throws IOException, NoSuchAlgorithmException {
+        /*
+         * saves compressed file into versions folder
+         */
+        // TODO: reformat output into JSON 
         try (FileInputStream fileInputStream = new FileInputStream(filePath.toString());
             FileOutputStream fileOutputStream = new FileOutputStream(versionControlPath.resolve("versions/" + getFileHash()).toString());
             DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(fileOutputStream)) {
@@ -49,7 +53,7 @@ public class VersionControl {
 
     private String getFileHash() throws IOException, NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
-
+        // hashing file
         try (FileInputStream fileInputStream = new FileInputStream(filePath.toString())) {
             byte[] buffer = new byte[BUFFER_SIZE];
             int bytesRead;
@@ -60,6 +64,7 @@ public class VersionControl {
 
         byte[] hashBytes = digest.digest();
 
+        // convert hash bytes to string
         StringBuilder stringBuilder = new StringBuilder();
         for (byte hashByte : hashBytes) {
             stringBuilder.append(String.format("%02x", hashByte));

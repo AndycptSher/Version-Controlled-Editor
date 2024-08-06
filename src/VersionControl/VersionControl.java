@@ -62,11 +62,14 @@ public class VersionControl {
         String encodedData = Base64.getEncoder().encodeToString(compressedData);
 
         // Create JSON string
-        String jsonString = "{\n" +
-                "\"previous\": [\"" + getCurrentVersion() + "\"],\n" +
-                "\"next\": [],\n" +
-                "\"data\": \"" + encodedData + "\"\n" +
-                "}";
+        String jsonString = String.format(String.join("\n",
+            "{",
+            "\"previous\": [\"%s\"],",
+            "\"next\": [],",
+            "\"data\": \"%s\"",
+            "}"),
+            getCurrentVersion(), encodedData
+         );
 
         // Getting hash of current versions contents
         String fileHash = getFileHash();

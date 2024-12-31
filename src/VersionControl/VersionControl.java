@@ -1,13 +1,8 @@
 package VersionControl;
 
-import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.util.zip.DeflaterOutputStream;
-import java.util.Base64;
-
 // Exception imports
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

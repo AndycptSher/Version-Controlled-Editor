@@ -1,5 +1,15 @@
 package VersionControl;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.zip.DeflaterOutputStream;
+import java.util.Base64;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 public final class JSONVersion extends Version implements AutoCloseable {
 
     private static final int BUFFER_SIZE = 1024;

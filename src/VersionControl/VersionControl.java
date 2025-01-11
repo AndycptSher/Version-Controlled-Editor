@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 import VersionControl.Strategies.JSONStrategy;
 
@@ -75,8 +77,10 @@ public class VersionControl <T extends Version<T>>{
      * gets the path of current version file in the current_version file
      * @return returns the version in the target file
      */
-    public Path getCurrentVersion() throws IOException {
-        return Path.of(Files.readString(versionControlPath.resolve("current_version")));
+    public Optional<Path> getCurrentVersion() throws IOException {
+        return Optional.of(Files.readString(versionControlPath.resolve("current_version")))
+        .filter(Predicate.not(String::isBlank))
+        .map(Path::of);
     }
 
     /**

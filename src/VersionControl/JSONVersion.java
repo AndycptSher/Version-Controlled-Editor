@@ -26,7 +26,7 @@ public final class JSONVersion extends Version<JSONVersion> {
         super(versionControl);
         // timestamp prevents verisoning files overwriting each other
         this.versionName = System.currentTimeMillis() / 1000L + getCurrentFileHash();
-        this.previousVersions = new Path[]{versionControl.getCurrentVersion()};
+        this.previousVersions = versionControl.getCurrentVersion().map(path -> new Path[]{path}).orElse(new Path[]{});
         this.savedVersion = false;
     }
 
@@ -38,6 +38,7 @@ public final class JSONVersion extends Version<JSONVersion> {
     private JSONVersion(VersionControl<JSONVersion> versionControl, Path versionFile) {
         super(versionControl);
         this.versionName = versionFile.getFileName().toString();
+        // TODO: extract info from version file
         this.savedVersion = true;
     }
 
@@ -153,12 +154,14 @@ public final class JSONVersion extends Version<JSONVersion> {
         // Create JSON string
         String jsonString = String.format(String.join("\n",
                 "{",
-                "\"previous\": [\"%s\"],",
-                "\"next\": [],",
+                "\"previous\": [%s],",
+                "\"next\": [%s],",
                 "\"data\": \"%s\"",
                 "}"
             ),
-            String.join(",", Arrays.stream(this.previousVersions).map(path -> path.toString()).toList()), encodedData
+            String.join(",", Arrays.stream(this.previousVersions).map(path -> "\""+path.getFileName().toString()+"\"").toList()), 
+            String.join(",", Arrays.stream(this.nextVersions).map(path -> "\""+path.getFileName().toString()+"\"").toList()),
+            encodedData
         );
 
         // TODO: Read previous version (or in this case still the getCurrentVersion()) and change it's next value
@@ -170,8 +173,8 @@ public final class JSONVersion extends Version<JSONVersion> {
 
         // Saving to the file
         Path versionsFilePath = versionControlFilePath.resolve("versions");
-        Files.createDirectories(versionsFilePath);
-        Path jsonFilePath = versionsFilePath.resolve(versionName);
+        versionsFilePath = Files.createDirectories(versionsFilePath);
+        Path jsonFilePath = versionsFilePath.resolve(this.versionName);
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFilePath.toFile())) {
             fileOutputStream.write(jsonString.getBytes());
         }

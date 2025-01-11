@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Versioning algorithm stratagy interface
  */
-public interface VersioningStrategy <T extends Version> {
+public interface VersioningStrategy <T extends Version<T>> {
     /**
      * creates new version object from the current state of the targte file
      * @param   versionControlPath

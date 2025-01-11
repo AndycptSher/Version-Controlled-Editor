@@ -6,11 +6,8 @@ import java.nio.file.Path;
  * Base class for all Versioning Stratagies
  * version file object 
  */
-public abstract class Version implements AutoCloseable{
-    /**
-     * Thrown when a version file or object is not found
-     */
-    public class VersionNotFoundException extends Exception {}
+public abstract class Version <T extends Version<T>> implements AutoCloseable{
+    protected final VersionControl<T> controller;
 
     public final String title; // name of target file
     protected Path filePath; // path of version controlled file
@@ -25,7 +22,9 @@ public abstract class Version implements AutoCloseable{
      * @param   versionControlFilePath
      *          the path of the directory containing everything needed
      */
-    public Version(VersionControl<? extends Version> versionControl){
+    public Version(VersionControl<T> versionControl){
+        this.controller = versionControl;
+        
         this.versionControlFilePath = versionControl.getVersionControlPath();
         
         String[] sections = this.versionControlFilePath.toString().split("\\.");
@@ -35,6 +34,9 @@ public abstract class Version implements AutoCloseable{
         this.filePath = versionControl.getFilePath();
 
         this.currentVersion = this.versionControlFilePath.resolve("current_version");
+        
+        this.previousVersions = new Path[]{};
+        this.nextVersions = new Path[]{};
     }
 
     /**
@@ -47,13 +49,13 @@ public abstract class Version implements AutoCloseable{
      * retrieves the immediate previous versioning objects
      * @return Array of verison objects
      */
-    protected abstract Version[] getPreviousVersions();
+    protected abstract Version<T>[] getPreviousVersions();
     
     /**
      * retrieves the immediate following versioning objects
      * @return Array of verison objects
      */
-    protected abstract Version[] getNextVersions();
+    protected abstract Version<T>[] getNextVersions();
     
     /**
      * setter method for previous version
@@ -61,9 +63,9 @@ public abstract class Version implements AutoCloseable{
      *          version to set as previous version
      * @return
      */
-    protected abstract boolean setPreviousVersions(Version version);
+    protected abstract boolean setPreviousVersions(Version<T> version);
     
-    protected abstract boolean setNextVersions(Version version);
+    protected abstract boolean setNextVersions(Version<T> version);
     
     public static void appendNewVersionToCurrentBranch(Path versionControlPath) throws Exception{
         throw new UnsupportedOperationException("Unimplemented method 'appendNewVersionToCurrentBranch'");

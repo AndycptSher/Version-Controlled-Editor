@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.security.NoSuchAlgorithmException;
 
-public final class JSONVersion extends Version {
+public final class JSONVersion extends Version<JSONVersion> {
 
     private static final int BUFFER_SIZE = 1024;
 
@@ -122,7 +122,7 @@ public final class JSONVersion extends Version {
     }
     
     @Override
-    public boolean setPreviousVersions(Version version) {
+    public boolean setPreviousVersions(Version<JSONVersion> version) {
         this.savedVersion = false;
         ArrayList<Path> previousVersions = new ArrayList<>(Arrays.asList(this.previousVersions));
         previousVersions.add(version.getPath());
@@ -131,9 +131,12 @@ public final class JSONVersion extends Version {
     }
 
     @Override
-    public boolean setNextVersions(Version version) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setNextVersions'");
+    public boolean setNextVersions(Version<JSONVersion> version) {
+        this.savedVersion = false;
+        ArrayList<Path> nextVersions = new ArrayList<>(Arrays.asList(this.nextVersions));
+        nextVersions.add(version.getPath());
+        this.nextVersions = nextVersions.toArray(Path[]::new);
+        return true;
     }
 
     /**
@@ -159,6 +162,11 @@ public final class JSONVersion extends Version {
         );
 
         // TODO: Read previous version (or in this case still the getCurrentVersion()) and change it's next value
+        for (Path prevPath: this.previousVersions) {
+            try (JSONVersion prevVer = new JSONVersion(this.controller, prevPath)) {
+                prevVer.setNextVersions(this);
+            }
+        }
 
         // Saving to the file
         Path versionsFilePath = versionControlFilePath.resolve("versions");

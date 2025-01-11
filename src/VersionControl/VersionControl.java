@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * Version Controller object to give unified API for file versioning
  */
-public class VersionControl <T extends Version>{
+public class VersionControl <T extends Version<T>>{
     
     // Path and name of the file being version controlled
     private Path filePath;

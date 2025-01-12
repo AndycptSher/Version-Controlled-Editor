@@ -57,30 +57,28 @@ public final class JSONVersion extends Version<JSONVersion> {
                     this.previousVersions = Optional.of(pair[1].substring(pair[1].indexOf("[")+1, pair[1].lastIndexOf("]")))
                     .filter(Predicate.not(String::isEmpty))
                     .map(entries -> entries.split(","))
-                    .map(entries -> Arrays.stream(entries)
-                        .map(file -> file.substring(1, file.length()-1))
-                        .map(Path::of)
-                        .toArray(Path[]::new)
-                    )
-                    .orElse(new Path[]{});
+                    .map(entries -> Arrays.stream(entries))
+                    .orElse(Stream.empty())
+                    .map(file -> file.substring(file.indexOf("\"")+1, file.lastIndexOf("\"")))
+                    .map(Path::of)
+                    .toArray(Path[]::new);
                 }
                 case "\"next\"" -> {
                     this.nextVersions = Optional.of(pair[1].substring(pair[1].indexOf("[")+1, pair[1].lastIndexOf("]")))
                     .filter(Predicate.not(String::isEmpty))
                     .map(entries -> entries.split(","))
-                    .map(entries -> Arrays.stream(entries)
-                        .map(file -> file.substring(file.indexOf("\"")+1, file.lastIndexOf("\"")))
-                        .map(Path::of)
-                        .toArray(Path[]::new)
-                    )
-                    .orElse(new Path[]{});
+                    .map(entries -> Arrays.stream(entries))
+                    .orElse(Stream.empty())
+                    .map(file -> file.substring(file.indexOf("\"")+1, file.lastIndexOf("\"")))
+                    .map(Path::of)
+                    .toArray(Path[]::new);
                 }
                 case "\"data\"" -> {
-
                     fileContents = pair[1].substring(pair[1].indexOf("\"")+1, pair[1].lastIndexOf("\""));
                 }
+                case "{", "}" -> {}
                 default -> {
-
+                    assert false: "there sould be nothing else in a JSONVersioning file";
                 }
             }
         }

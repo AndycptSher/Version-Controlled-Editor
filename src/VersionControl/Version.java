@@ -61,11 +61,15 @@ public abstract class Version <T extends Version<T>> implements AutoCloseable{
      * setter method for previous version
      * @param   version
      *          version to set as previous version
-     * @return
      */
-    protected abstract boolean setPreviousVersions(Version<T> version);
+    protected abstract void setPreviousVersions(Version<T> version);
     
-    protected abstract boolean setNextVersions(Version<T> version);
+    /**
+     * setter method for previous version
+     * @param   version
+     *          version to set as previous version
+     */
+    protected abstract void setNextVersions(Version<T> version);
     
     public static void appendNewVersionToCurrentBranch(Path versionControlPath) throws Exception{
         throw new UnsupportedOperationException("Unimplemented method 'appendNewVersionToCurrentBranch'");

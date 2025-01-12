@@ -8,6 +8,10 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.security.NoSuchAlgorithmException;
 
 public final class JSONVersion extends Version<JSONVersion> {
@@ -35,10 +39,46 @@ public final class JSONVersion extends Version<JSONVersion> {
      * @param controlFolderPath path to the folder containing versioning data
      * @param verisonFile the version file object
      */
-    private JSONVersion(VersionControl<JSONVersion> versionControl, Path versionFile) {
+    private JSONVersion(VersionControl<JSONVersion> versionControl, Path versionFile) throws IOException{
         super(versionControl);
         this.versionName = versionFile.getFileName().toString();
-        // TODO: extract info from version file
+        // TODO: consider refactor to a more lazy retrieval
+        for (String line: Files.readAllLines(versionFile)) {
+            if (!line.contains(":")) continue;
+            String[] pair = line.strip().split(":", 2);
+            
+            switch (pair[0]) {
+                case "\"previous\"" -> {
+                    this.previousVersions = Optional.of(pair[1].substring(pair[1].indexOf("[")+1, pair[1].lastIndexOf("]")))
+                    .filter(Predicate.not(String::isEmpty))
+                    .map(entries -> entries.split(","))
+                    .map(entries -> Arrays.stream(entries)
+                        .map(file -> file.substring(1, file.length()-1))
+                        .map(Path::of)
+                        .toArray(Path[]::new)
+                    )
+                    .orElse(new Path[]{});
+                }
+                case "\"next\"" -> {
+                    this.nextVersions = Optional.of(pair[1].substring(pair[1].indexOf("[")+1, pair[1].lastIndexOf("]")))
+                    .filter(Predicate.not(String::isEmpty))
+                    .map(entries -> entries.split(","))
+                    .map(entries -> Arrays.stream(entries)
+                        .map(file -> file.substring(1, file.length()-1))
+                        .map(Path::of)
+                        .toArray(Path[]::new)
+                    )
+                    .orElse(new Path[]{});
+                }
+                case "\"data\"" -> {
+                    // TOOD: think about what to do with data
+                }
+                default -> {
+
+                }
+            }
+        }
+
         this.savedVersion = true;
     }
 
@@ -123,21 +163,25 @@ public final class JSONVersion extends Version<JSONVersion> {
     }
     
     @Override
-    public boolean setPreviousVersions(Version<JSONVersion> version) {
-        this.savedVersion = false;
-        ArrayList<Path> previousVersions = new ArrayList<>(Arrays.asList(this.previousVersions));
-        previousVersions.add(version.getPath());
-        this.previousVersions = previousVersions.toArray(Path[]::new);
-        return true;
+    public void setPreviousVersions(Version<JSONVersion> version) {
+        Set<Path> previousVersions = new HashSet<>(Arrays.asList(this.previousVersions));
+        int originalLength = previousVersions.size();
+        previousVersions.add(version.getPath().getFileName()); // getFileName to ensure consistency/remove duplicates
+        this.savedVersion = previousVersions.size() == originalLength;
+        if (!this.savedVersion) { // reduce unneccesary operation?
+            this.previousVersions = previousVersions.toArray(Path[]::new);
+        }
     }
 
     @Override
-    public boolean setNextVersions(Version<JSONVersion> version) {
-        this.savedVersion = false;
-        ArrayList<Path> nextVersions = new ArrayList<>(Arrays.asList(this.nextVersions));
-        nextVersions.add(version.getPath());
-        this.nextVersions = nextVersions.toArray(Path[]::new);
-        return true;
+    public void setNextVersions(Version<JSONVersion> version) {
+        Set<Path> nextVersions = new HashSet<>(Arrays.asList(this.nextVersions));
+        int originalLength = nextVersions.size();
+        nextVersions.add(version.getPath().getFileName()); // getFileName to ensure consistency/remove duplicates
+        this.savedVersion = nextVersions.size() == originalLength;
+        if (!this.savedVersion) { // reduce unneccesary operation?
+            this.nextVersions = nextVersions.toArray(Path[]::new);
+        }
     }
 
     /**
@@ -164,15 +208,15 @@ public final class JSONVersion extends Version<JSONVersion> {
             encodedData
         );
 
+        Path versionsFilePath = versionControlFilePath.resolve("versions");
         // TODO: Read previous version (or in this case still the getCurrentVersion()) and change it's next value
         for (Path prevPath: this.previousVersions) {
-            try (JSONVersion prevVer = new JSONVersion(this.controller, prevPath)) {
+            try (JSONVersion prevVer = new JSONVersion(this.controller, versionsFilePath.resolve(prevPath))) {
                 prevVer.setNextVersions(this);
             }
         }
 
         // Saving to the file
-        Path versionsFilePath = versionControlFilePath.resolve("versions");
         versionsFilePath = Files.createDirectories(versionsFilePath);
         Path jsonFilePath = versionsFilePath.resolve(this.versionName);
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFilePath.toFile())) {

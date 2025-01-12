@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import java.security.NoSuchAlgorithmException;
 
 public final class JSONVersion extends Version<JSONVersion> {
@@ -155,16 +156,36 @@ public final class JSONVersion extends Version<JSONVersion> {
         return stringBuilder.toString();
     }
 
+    /**
+     * @implNote Omits versions that cannot be accessed
+     */
     @Override
     public JSONVersion[] getPreviousVersions() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPreviousVersions'");
+        return Arrays.stream(this.previousVersions)
+        .flatMap(path -> {
+            try {
+                return Stream.of(new JSONVersion(this.controller, path));
+            } catch (IOException e) {
+                return Stream.empty();
+            }
+        })
+        .toArray(JSONVersion[]::new);
     }
     
+    /**
+     * @implNote Omits versions that cannot be accessed
+     */
     @Override
     public JSONVersion[] getNextVersions() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getNextVersions'");
+        return Arrays.stream(this.nextVersions)
+        .flatMap(path -> {
+            try {
+                return Stream.of(new JSONVersion(this.controller, path));
+            } catch (IOException e) {
+                return Stream.empty();
+            }
+        })
+        .toArray(JSONVersion[]::new);
     }
     
     @Override

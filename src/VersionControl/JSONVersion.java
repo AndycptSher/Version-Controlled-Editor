@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.zip.DeflaterOutputStream;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
@@ -21,6 +20,8 @@ public final class JSONVersion extends Version<JSONVersion> {
     private String versionName;
     private boolean savedVersion; // indicate if object contents has been altered
 
+    private final String fileContents;
+
     /**
      * constructor for new version file objects
      * @param controlFolderPath path to the folder containing versioning data
@@ -32,6 +33,7 @@ public final class JSONVersion extends Version<JSONVersion> {
         this.versionName = System.currentTimeMillis() / 1000L + getCurrentFileHash();
         this.previousVersions = versionControl.getCurrentVersion().map(path -> new Path[]{path}).orElse(new Path[]{});
         this.savedVersion = false;
+        this.fileContents = getCurrentCompressedFile();
     }
 
     /**
@@ -42,6 +44,8 @@ public final class JSONVersion extends Version<JSONVersion> {
     private JSONVersion(VersionControl<JSONVersion> versionControl, Path versionFile) throws IOException{
         super(versionControl);
         this.versionName = versionFile.getFileName().toString();
+        String fileContents = ""; // ensure final var fileContents has a value, empty default
+
         // TODO: consider refactor to a more lazy retrieval
         for (String line: Files.readAllLines(versionFile)) {
             if (!line.contains(":")) continue;
@@ -71,7 +75,7 @@ public final class JSONVersion extends Version<JSONVersion> {
                     .orElse(new Path[]{});
                 }
                 case "\"data\"" -> {
-                    // TOOD: think about what to do with data
+                    fileContents = pair[1].substring(1, pair[1].length()-1);
                 }
                 default -> {
 
@@ -79,6 +83,7 @@ public final class JSONVersion extends Version<JSONVersion> {
             }
         }
 
+        this.fileContents = fileContents;
         this.savedVersion = true;
     }
 
@@ -189,11 +194,16 @@ public final class JSONVersion extends Version<JSONVersion> {
      */
     @Override
     public void close() throws Exception {
-        // TODO: add check if file changed since last version
         if (savedVersion) {
             return;
         }
-        String encodedData = getCurrentCompressedFile();
+        
+        // if there is no change since last version, do not write a new file
+        if (this.previousVersions.length == 1) {
+            try (JSONVersion prevVersion = new JSONVersion(this.controller, this.previousVersions[0])) {
+                if (this.fileContents == prevVersion.fileContents) return;
+            }
+        } 
         
         // Create JSON string
         String jsonString = String.format(String.join("\n",
@@ -205,11 +215,10 @@ public final class JSONVersion extends Version<JSONVersion> {
             ),
             String.join(",", Arrays.stream(this.previousVersions).map(path -> "\""+path.getFileName().toString()+"\"").toList()), 
             String.join(",", Arrays.stream(this.nextVersions).map(path -> "\""+path.getFileName().toString()+"\"").toList()),
-            encodedData
+            this.fileContents
         );
 
         Path versionsFilePath = versionControlFilePath.resolve("versions");
-        // TODO: Read previous version (or in this case still the getCurrentVersion()) and change it's next value
         for (Path prevPath: this.previousVersions) {
             try (JSONVersion prevVer = new JSONVersion(this.controller, versionsFilePath.resolve(prevPath))) {
                 prevVer.setNextVersions(this);

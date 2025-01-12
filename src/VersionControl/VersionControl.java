@@ -61,7 +61,7 @@ public class VersionControl <T extends Version<T>>{
      * returns the target file's path
      * @return target file's path
      */
-    public Path getFilePath() {
+    public Path getTargetFilePath() {
         return filePath;
     }
 
@@ -74,7 +74,7 @@ public class VersionControl <T extends Version<T>>{
     }
     
     /**
-     * gets the path of current version file in the current_version file
+     * gets the path of current version file in the current_version file, if name exists in current_version
      * @return returns the version in the target file
      */
     public Optional<Path> getCurrentVersion() throws IOException {
@@ -96,6 +96,8 @@ public class VersionControl <T extends Version<T>>{
     
     /**
      * loads a version into the target file
+     * 
+     * Equivalent to git checkout?
      * @param version
      */
     public void load(String version) {
@@ -127,7 +129,7 @@ public class VersionControl <T extends Version<T>>{
     public static void main(String[] args) throws Exception{
         System.out.println("Hi");
         VersionControl<JSONVersion> vc = new VersionControl<>("src/EditorUI/JavaEditor.java", new JSONStrategy());
-        java.util.concurrent.TimeUnit.SECONDS.sleep(1);
+
         vc.save();
     }
 }

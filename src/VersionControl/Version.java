@@ -31,7 +31,7 @@ public abstract class Version <T extends Version<T>> implements AutoCloseable{
 
         this.title = sections[sections.length -2].split("_")[0];
 
-        this.filePath = versionControl.getFilePath();
+        this.filePath = versionControl.getTargetFilePath();
 
         this.currentVersion = this.versionControlFilePath.resolve("current_version");
         

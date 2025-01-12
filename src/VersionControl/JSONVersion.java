@@ -69,14 +69,15 @@ public final class JSONVersion extends Version<JSONVersion> {
                     .filter(Predicate.not(String::isEmpty))
                     .map(entries -> entries.split(","))
                     .map(entries -> Arrays.stream(entries)
-                        .map(file -> file.substring(1, file.length()-1))
+                        .map(file -> file.substring(file.indexOf("\"")+1, file.lastIndexOf("\"")))
                         .map(Path::of)
                         .toArray(Path[]::new)
                     )
                     .orElse(new Path[]{});
                 }
                 case "\"data\"" -> {
-                    fileContents = pair[1].substring(1, pair[1].length()-1);
+
+                    fileContents = pair[1].substring(pair[1].indexOf("\"")+1, pair[1].lastIndexOf("\""));
                 }
                 default -> {
 
@@ -219,10 +220,11 @@ public final class JSONVersion extends Version<JSONVersion> {
             return;
         }
         
+        Path versionsFilePath = versionControlFilePath.resolve("versions");
         // if there is no change since last version, do not write a new file
         if (this.previousVersions.length == 1) {
-            try (JSONVersion prevVersion = new JSONVersion(this.controller, this.previousVersions[0])) {
-                if (this.fileContents == prevVersion.fileContents) return;
+            try (JSONVersion prevVersion = new JSONVersion(this.controller, versionsFilePath.resolve(this.previousVersions[0]))) {
+                if (this.fileContents.equals(prevVersion.fileContents)) return;
             }
         } 
         
@@ -239,7 +241,6 @@ public final class JSONVersion extends Version<JSONVersion> {
             this.fileContents
         );
 
-        Path versionsFilePath = versionControlFilePath.resolve("versions");
         for (Path prevPath: this.previousVersions) {
             try (JSONVersion prevVer = new JSONVersion(this.controller, versionsFilePath.resolve(prevPath))) {
                 prevVer.setNextVersions(this);
